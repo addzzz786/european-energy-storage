@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# Data files 
+data/raw/
+data/processed/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# API keys
+config.py
+secrets.py
+*.env
