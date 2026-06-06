@@ -1,0 +1,9 @@
+pandas
+requests
+matplotlib
+yfinance
+python-dotenv
+pyarrow
+roiti-gie
+numpy
+seaborn
