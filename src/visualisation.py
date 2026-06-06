@@ -202,3 +202,94 @@ def plot_price_storage_overlay(merged_df: pd.DataFrame) -> plt.Figure:
     plt.tight_layout()
     return fig
 
+
+
+def plot_switching_signal(signal_df: pd.DataFrame,
+                          switch_threshold: float = 55.0) -> plt.Figure:
+    """
+    Plot TTF price with coal-gas switching signal highlighted.
+
+    Shades periods where TTF exceeds the switching threshold,
+    indicating coal is economically preferred for power generation.
+
+    Parameters
+    ----------
+    signal_df : pd.DataFrame
+        Output of compute_switching_signal(), must contain
+        'ttf_price', 'switching_active', 'switching_intensity'
+    switch_threshold : float
+        Threshold line to draw on chart
+
+    Returns
+    -------
+    plt.Figure
+    """
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 8),
+                                    sharex=True,
+                                    gridspec_kw={"height_ratios": [3, 1]})
+
+    # --- Top panel: TTF price with switching periods shaded ---
+    ax1.plot(signal_df.index, signal_df["ttf_price"],
+             color="#d62728", linewidth=1.5,
+             label="TTF Price (€/MWh)", zorder=3)
+
+    ax1.axhline(y=switch_threshold,
+                color="darkorange", linewidth=1.5,
+                linestyle="--",
+                label=f"Switching threshold (€{switch_threshold}/MWh)",
+                zorder=2)
+
+    # Shade switching active periods
+    ax1.fill_between(signal_df.index,
+                     0, signal_df["ttf_price"],
+                     where=signal_df["switching_active"],
+                     alpha=0.25, color="darkorange",
+                     label="Coal switching active",
+                     zorder=1)
+
+    # Annotate switching period duration
+    active = signal_df[signal_df["switching_active"]]
+    if not active.empty:
+        mid_point = active.index[len(active) // 2]
+        ax1.annotate(f"{len(active)} days of\ncoal switching",
+                    xy=(mid_point, switch_threshold),
+                    xytext=(mid_point, switch_threshold + 80),
+                    fontsize=9,
+                    color="darkorange",
+                    ha="center",
+                    arrowprops=dict(arrowstyle="->",
+                                   color="darkorange",
+                                   lw=1.0))
+
+    ax1.set_ylabel("TTF Price (€/MWh)", fontsize=11)
+    ax1.set_ylim(0, 380)
+    ax1.legend(loc="upper left", fontsize=9, framealpha=0.9)
+    ax1.set_title("Coal-Gas Switching Signal: TTF Price vs Switching Threshold",
+                  fontsize=13, fontweight="bold", pad=15)
+    ax1.grid(axis="y", alpha=0.3, linestyle="--")
+    ax1.spines["top"].set_visible(False)
+    ax1.spines["right"].set_visible(False)
+
+    # --- Bottom panel: switching intensity ---
+    ax2.fill_between(signal_df.index,
+                     0, signal_df["switching_intensity"],
+                     where=signal_df["switching_active"],
+                     alpha=0.7, color="darkorange")
+
+    ax2.plot(signal_df.index, signal_df["switching_intensity"],
+             color="darkorange", linewidth=0.8, alpha=0.5)
+
+    ax2.set_ylabel("Switching\nIntensity", fontsize=9)
+    ax2.set_ylim(0, signal_df["switching_intensity"].max() * 1.1)
+    ax2.grid(axis="y", alpha=0.3, linestyle="--")
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["right"].set_visible(False)
+
+    fig.text(0.99, 0.01,
+             "Source: GIE AGSI+ / Yahoo Finance",
+             ha="right", va="bottom",
+             fontsize=8, color="grey")
+
+    plt.tight_layout()
+    return fig
