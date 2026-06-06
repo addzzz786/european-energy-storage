@@ -59,6 +59,8 @@ Active for 516 consecutive days from September 2021 to February 2023.
 ---
 
 ## Project Structure
+
+```
 european-energy-storage/
 ├── notebooks/
 │   └── 01_eia_storage_analysis.ipynb  # Main analysis notebook
@@ -70,6 +72,7 @@ european-energy-storage/
 │   └── test_pipeline.py
 ├── requirements.txt
 └── README.md
+```
 
 ## Installation
 
