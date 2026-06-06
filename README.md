@@ -31,18 +31,21 @@ Storage fill percentage plotted by day-of-year across all years. Historical
 distribution shown as a percentile band (10th–90th, 25th–75th). Identifies 
 2022 as a structural outlier, storage broke below the 10th percentile floor 
 in February 2022 and reached a historic low of 25.6% in March.
+![Seasonal Fan Chart](assets/seasonal_fan_chart.png)
 
 **2. Storage vs TTF Price Overlay**  
 Dual-axis time series showing the inverse relationship between storage levels 
 and TTF front-month futures price. The price peak of €339/MWh in August 2022 
 lagged the storage trough by five months, reflecting forward-looking pricing 
 of winter scarcity risk and storage optionality value, not spot scarcity.
+![Price Storage Overlay](assets/price_storage_overlay.png)
 
 **3. Coal-Gas Switching Signal**  
 When TTF exceeds ~€55/MWh, gas-fired power generation becomes uneconomic 
 relative to coal (accounting for thermal efficiencies and EU ETS carbon costs). 
 The switching intensity metric quantifies how far above the threshold TTF traded. 
 Active for 516 consecutive days from September 2021 to February 2023.
+![Coal Gas Switching](assets/coal_gas_switching.png)
 
 ---
 
