@@ -9,6 +9,7 @@ venv/
 # Data files 
 data/raw/
 data/processed/
+notebooks/data/
 
 # Jupyter
 .ipynb_checkpoints/
