@@ -101,4 +101,4 @@ yfinance
 python-dotenv
 pyarrow
 
-*Data source: GIE AGSI+ transparency platform*
+*Data source: GIE AGSI*
