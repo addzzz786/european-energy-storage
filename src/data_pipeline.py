@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import os
 import time
+import yfinance as yf
 
 
 def fetch_agsi_storage(country_code: str = "eu",
@@ -90,5 +91,50 @@ def fetch_agsi_storage(country_code: str = "eu",
     os.makedirs("data/processed", exist_ok=True)
     df.to_parquet(cache_path)
     print(f"Saved to cache: {cache_path}")
+
+    return df
+
+
+def fetch_ttf_prices(start: str = "2019-01-01",
+                     end: str = "2024-12-31") -> pd.DataFrame:
+    """
+    Fetch TTF natural gas front-month futures price using Yahoo Finance
+
+    Parameters
+    - - - - - - -
+    start: str
+        Start date YYYY-MM-DD
+    end str
+        End date YYYY-MM-DD
+
+    Returns
+    - - - - - - - 
+    pd.DataFrame
+        DatetimeIndex, columns: [ttf_price]
+    """
+
+    cache_path = f"data/processed/ttf_{start}_{end}.parquet"
+    if os.path.exists(cache_path):
+        print("Loading TTF data from cache")
+        return pd.read_parquet(cache_path)
+    
+    print("Fetching TTF prices from yFinance")
+    raw = yf.download("TTF=F", start=start, end=end, progress=False)
+
+    if raw.empty:
+        raise ValueError(
+            "No TTF data downloaded, check parameters"
+        )
+    
+    df = raw[["Close"]].copy()
+    df.columns = ["ttf_price"]
+    df.index = pd.to_datetime(df.index).tz_localize(None)
+    df = df.sort_index()
+    df["ttf_price"] = pd.to_numeric(df["ttf_price"], errors="coerce")
+    df = df.dropna()
+
+    os.makedirs("data/processed", exist_ok=True)
+    df.to_parquet(cache_path)
+    print(f"Saved TTF to cache: {cache_path}")
 
     return df
