@@ -121,3 +121,84 @@ def plot_seasonal_fan(df: pd.DataFrame) -> plt.Figure:
 
     plt.tight_layout()
     return fig
+
+
+
+def plot_price_storage_overlay(merged_df: pd.DataFrame) -> plt.Figure:
+    """
+    Plot TTF price and storage fill on dual y-axes as a time series
+
+    This will visually show the inverse relationship between storage levels and spot prices, with the 2022 crisis period annotated
+
+    Parameters
+    - - - - - - 
+    merged_df: pd.DataFrame
+        DatetimeIndex, columns[full_pct, ttf_price]
+    
+    Returns
+    - - - - - - 
+    plt.Figure
+    """
+
+    fig, ax1 = plt.subplots(figsize=(14,6))
+
+    # Storage fill on the left axis
+    colour_storage = "steelblue"
+    ax1.set_ylabel("Storage Fill (%)", color=colour_storage, fontsize=11)
+    ax1.plot(merged_df.index, merged_df["full_pct"],
+             color=colour_storage, linewidth=1.5,
+             label="Storage Fill %", alpha=0.9)
+    ax1.tick_params(axis="y", labelcolor=colour_storage)
+    ax1.set_ylim(0,110)
+
+    # TTF price on the right axis
+    ax2 = ax1.twinx()
+    color_price = "#d62728"
+    ax2.set_ylabel("TTF Price (€/MWh)", color=color_price, fontsize=11)
+    ax2.plot(merged_df.index, merged_df["ttf_price"],
+             color=color_price, linewidth=1.5,
+             label="TTF Price", alpha=0.9)
+    ax2.tick_params(axis="y", labelcolor=color_price)
+    ax2.set_ylim(0, 380)
+
+    # Annotate crisis peak 
+    peak_date = merged_df["ttf_price"].idxmax()
+    peak_price = merged_df["ttf_price"].max()
+    ax2.annotate(f"Crisis peak\n€{peak_price:.0f}/MWh\n{peak_date.strftime('%b %Y')}",
+                 xy=(peak_date, peak_price),
+                 xytext=(peak_date - pd.DateOffset(months=8), peak_price - 60),
+                 fontsize=9,
+                 color=color_price,
+                 arrowprops=dict(arrowstyle="->",
+                                color=color_price,
+                                lw=1.0))
+
+    # Shade crisis period
+    crisis_start = pd.Timestamp("2021-10-01")
+    crisis_end = pd.Timestamp("2023-01-01")
+    ax1.axvspan(crisis_start, crisis_end,
+                alpha=0.08, color="red",
+                label="Crisis period")
+
+    # Combined legend 
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2,
+               loc="upper left", fontsize=9, framealpha=0.9)
+
+    ax1.set_xlabel("")
+    ax1.set_title("European Gas Storage vs TTF Price: 2019–2024",
+                  fontsize=13, fontweight="bold", pad=15)
+
+    ax1.grid(axis="y", alpha=0.3, linestyle="--")
+    ax1.spines["top"].set_visible(False)
+    ax2.spines["top"].set_visible(False)
+
+    fig.text(0.99, 0.01,
+             "Source: GIE AGSI+ / Yahoo Finance",
+             ha="right", va="bottom",
+             fontsize=8, color="grey")
+
+    plt.tight_layout()
+    return fig
+
